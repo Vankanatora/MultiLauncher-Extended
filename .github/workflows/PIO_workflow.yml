@@ -36,6 +36,6 @@ jobs:
       run: pip install -U platformio
 
     - name: Build project
-      run: pio ci --lib="." --board=esp32
+      run: pio run
       env:
         PLATFORMIO_CI_SRC: ${{ matrix.example }}
