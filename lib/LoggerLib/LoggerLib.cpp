@@ -159,13 +159,9 @@ bool LoggerLib::_initializeSD() {
 
         Serial.println("Copying data to " + newLogFileName + ", from " + existingLogName);
 
-        // Copy data in chunks
-        const size_t bufferSize = 64;  // Define a buffer size for efficiency
-        uint8_t buffer[bufferSize];
-        size_t bytesRead;
-
-        while ((bytesRead = sourceFile.read(buffer, bufferSize)) > 0) {
-            backupFile.write(buffer, bytesRead);
+        while (sourceFile.available())
+        {
+            backupFile.write(sourceFile.read());
         }
 
         // Close both files after copying
