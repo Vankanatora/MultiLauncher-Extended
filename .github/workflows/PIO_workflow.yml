@@ -1,0 +1,41 @@
+name: PlatformIO CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        platform: [esp32]  # Add any target platforms here
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Cache PlatformIO packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.platformio
+        key: ${{ runner.os }}-platformio-${{ hashFiles('**/platformio.ini') }}
+        restore-keys: |
+          ${{ runner.os }}-platformio-
+
+    - name: Install PlatformIO
+      run: pip install -U platformio
+
+    - name: Build project
+      run: pio run
+      env:
+        PLATFORMIO_CI_SRC: ${{ matrix.example }}
