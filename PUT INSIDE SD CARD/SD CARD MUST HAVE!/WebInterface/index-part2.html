@@ -1,0 +1,102 @@
+</ul>
+</aside>
+</div>
+
+<!-- Resizable divider -->
+<div class="divider" id="divider"></div>
+
+<div class="column" style="flex: 2; min-width: 300px;"> <!-- Set a minimum width -->
+<div class="iframe-container">
+    <iframe id="content-frame" src="https://www.wikipedia.org"></iframe>
+</div>
+<button id="action-button" class="button is-primary" onclick="buttonAction()" disabled>Perform Action</button> <!-- Disabled by default -->
+</div>
+</div>
+
+<script>
+let lastPressedLink; // Variable to store the last pressed link
+let storedData; // Variable to store data from the last pressed link
+let lastUrl; // Variable to store data from the last pressed link
+
+// Function to change the iframe source
+function changeIframeSrc(url, link) {
+document.getElementById('content-frame').src = url;
+lastPressedLink = link; // Update last pressed link
+storedData = link.getAttribute('data-info'); // Store data from the clicked link
+checkButtonState(); // Check button state
+}
+
+// Updated function to get the current domain and append the specified extension
+function getCurrentDomainUrl(extension) {
+return `${window.location.protocol}//${window.location.host}/${extension}`;
+}
+
+// Function for the button action
+function buttonAction() {
+if (storedData && storedData.startsWith("reload")) {
+    document.getElementById('content-frame').src = document.getElementById('content-frame').src;
+} else {
+    document.getElementById('content-frame').src = getCurrentDomainUrl(storedData);
+}
+}
+
+// Function to check the state of the button based on the last pressed link
+function checkButtonState() {
+if (lastPressedLink) {
+    // Enable/disable the button based on the last pressed link's class
+    const isFileClassPresent = lastPressedLink.classList.contains('is-file') || lastPressedLink.classList.contains('is-reload');
+    document.getElementById('action-button').disabled = !isFileClassPresent;
+
+    if (lastPressedLink.classList.contains('is-file')){
+        document.getElementById('action-button').innerHTML = "Load the Program"
+    }
+    if (lastPressedLink.classList.contains('is-reload')){
+        document.getElementById('action-button').innerHTML = "Refresh the data"
+    }
+}
+}
+
+const divider = document.getElementById('divider');
+const leftColumn = divider.previousElementSibling;
+const rightColumn = divider.nextElementSibling;
+
+let isDragging = false;
+
+// Add event listeners for dragging the divider
+divider.addEventListener('mousedown', (e) => {
+isDragging = true;
+document.body.style.cursor = 'col-resize';
+});
+
+document.addEventListener('mousemove', (e) => {
+if (!isDragging) return;
+
+const containerRect = leftColumn.parentNode.getBoundingClientRect();
+const newLeftWidth = e.clientX - containerRect.left;
+const newRightWidth = containerRect.width - newLeftWidth - divider.offsetWidth;
+
+// Minimum width constraints
+const minWidthLeft = 100; // Minimum width for the left column
+const minWidthRight = 300; // Minimum width for the right column
+
+// Prevent columns from becoming too narrow
+if (newLeftWidth < minWidthLeft) {
+    leftColumn.style.flex = `0 0 ${minWidthLeft}px`;
+    rightColumn.style.flex = `0 0 ${containerRect.width - minWidthLeft - divider.offsetWidth}px`;
+} else if (newRightWidth < minWidthRight) {
+    rightColumn.style.flex = `0 0 ${minWidthRight}px`;
+    leftColumn.style.flex = `0 0 ${containerRect.width - minWidthRight - divider.offsetWidth}px`;
+} else {
+    // Set flex-basis for dynamic resizing
+    leftColumn.style.flex = `0 0 ${newLeftWidth}px`;
+    rightColumn.style.flex = `0 0 ${newRightWidth}px`;
+}
+});
+
+document.addEventListener('mouseup', () => {
+isDragging = false;
+document.body.style.cursor = 'default';
+});
+</script>
+</body>
+</html>
